@@ -3,11 +3,15 @@ import sqlite3
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-# Configuración de rutas
+# --- CONFIGURACIÓN DE RUTAS ---
+# BASE_DIR es la carpeta 'src'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UI_DIR = os.path.join(BASE_DIR, 'ui')
-# Subimos un nivel para encontrar la carpeta 'data' desde 'src'
-DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'registry.db')
+
+# La carpeta 'ui' está un nivel arriba de 'src' según tu estructura de archivos
+UI_DIR = os.path.join(os.path.dirname(BASE_DIR), 'ui')
+
+# La carpeta 'data' también está un nivel arriba de 'src'
+DB_PATH = os.path.join(os.path.dirname(BASE_DIR), 'data', 'registry.db')
 
 app = Flask(__name__, static_folder=UI_DIR)
 CORS(app)
@@ -53,7 +57,7 @@ def add_infant():
     conn.close()
     return jsonify({"message": "Registrado con éxito", "id": new_id}), 201
 
-# 3. ACTUALIZAR / EDITAR (Put) - ¡La pieza nueva!
+# 3. ACTUALIZAR / EDITAR (Put)
 @app.route('/api/infants/<int:id>', methods=['PUT'])
 def update_infant(id):
     data = request.json
@@ -96,5 +100,7 @@ def get_stats():
     conn.close()
     return jsonify({"generos": generos, "sangre": sangre})
 
+# --- INICIO DEL SERVIDOR ---
 if __name__ == '__main__':
+    # IMPORTANTE: host='0.0.0.0' es obligatorio para Docker
     app.run(host='0.0.0.0', port=8080, debug=True)

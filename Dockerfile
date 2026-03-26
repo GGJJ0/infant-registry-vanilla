@@ -1,21 +1,19 @@
-# 1. Usamos una versión ligera de Python 3.11
+# Usamos una imagen ligera de Python
 FROM python:3.11-slim
 
-# 2. Establecemos el directorio de trabajo dentro del contenedor
+# Establecemos el directorio de trabajo principal
 WORKDIR /app
 
-# 3. Copiamos solo el archivo de requerimientos primero
-# Esto ayuda a que Docker no reinstale todo si solo cambias una línea de CSS
+# Copiamos los requisitos primero para optimizar el build
 COPY requirements.txt .
-
-# 4. Instalamos Flask y las librerías necesarias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copiamos el resto de los archivos del proyecto (src, ui, etc.)
+# COPIAMOS TODO EL CONTENIDO (src, ui, data) al contenedor
+# Esto garantiza que /app/ui y /app/src existan internamente
 COPY . .
 
-# 6. Informamos que la app corre en el puerto 8080
+# Exponemos el puerto que configuramos en Flask
 EXPOSE 8080
 
-# 7. Comando para arrancar el servidor
+# Ejecutamos el servidor indicando la ruta exacta
 CMD ["python", "src/main.py"]

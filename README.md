@@ -1,22 +1,16 @@
-# 👶 Infant Registry System | GS Digital
+# 👶 GS Digital - Infant Registry
 
-Sistema profesional de registro y monitoreo de infantes en tiempo real, desarrollado con **Arquitectura de Software Vanilla** (Python, SQLite y JavaScript puro).
+Sistema profesional de registro de infantes con analítica en tiempo real y persistencia de datos.
 
-## 🚀 Características
-- **Reloj Biológico:** Cálculo de edad exacta (Años, meses, días, horas, minutos y segundos).
-- **Seguridad:** Sistema de login con roles (Admin/User).
-- **Contenedores:** Despliegue rápido mediante Docker.
-- **Base de Datos:** Persistencia con SQLite.
+## 🚀 Tecnologías
+* **Backend:** Python 3.11 + Flask
+* **Frontend:** HTML5, CSS3 (Inter Font), JavaScript (Chart.js)
+* **Base de Datos:** SQLite
+* **Despliegue:** Docker & Docker Compose
 
-## 🛠️ Stack Tecnológico
-- **Backend:** Python 3.11 (Base HTTP Server).
-- **Frontend:** HTML5, CSS3 (Custom Variables) y JS Vanilla.
-- **Database:** SQLite3.
-- **DevOps:** Docker & Docker Compose.
-
-## 📦 Instalación y Despliegue
+## 🛠️ Cómo ejecutar el proyecto
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/GGJJ0/infant-registry-vanilla.git](https://github.com/GGJJ0/infant-registry-vanilla.git)
-   cd infant-registry-vanill
+   git clone [https://github.com/TU_USUARIO/infant_registry.git](https://github.com/TU_USUARIO/infant_registry.git)
+   cd infant_registry

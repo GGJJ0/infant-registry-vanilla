@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: gs_digital_registry
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    restart: always

@@ -1,38 +1,34 @@
-/* Variables de marca GS Digital */
+/* Variables de Marca GS Digital */
 :root {
     --primary: #2563eb;
     --primary-hover: #1d4ed8;
     --success: #059669;
+    --success-hover: #047857;
     --danger: #dc2626;
-    --bg: #f8fafc;
+    --bg: #f1f5f9;
     --card-bg: #ffffff;
     --text-main: #1e293b;
     --text-muted: #64748b;
     --border: #e2e8f0;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: var(--bg);
     color: var(--text-main);
-    line-height: 1.5;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    line-height: 1.6;
 }
 
-/* Header y Navegación */
+/* Header */
 header {
     background: white;
     padding: 1rem 2rem;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 nav {
@@ -43,83 +39,99 @@ nav {
     margin: 0 auto;
 }
 
-.logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary);
-}
+.logo { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
 
-/* Contenedor Principal */
+/* Contenedores */
 main {
-    flex: 1;
-    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
 }
 
 .card {
     background: var(--card-bg);
-    padding: 2.5rem;
+    padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 450px;
 }
 
-/* Formularios */
-h2 { margin-bottom: 0.5rem; font-size: 1.5rem; }
-p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.form-wide { max-width: 800px; }
 
-.form-group { margin-bottom: 1.25rem; text-align: left; }
-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
+/* Dashboard & Tablas */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
 
-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
+.table-container {
+    overflow-x: auto;
+    background: white;
     border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+    border: 1px solid var(--border);
 }
 
-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary);
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
+
+th, td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+
+/* Form Grid (Para el Registro) */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+
+input, select {
+    padding: 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+input:focus { outline: 2px solid var(--primary); border-color: transparent; }
 
 /* Botones */
 button {
-    cursor: pointer;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
     font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: 0.2s;
     border: none;
 }
 
-.btn-primary {
-    background: var(--primary);
-    color: white;
-    padding: 0.8rem;
-    width: 100%;
-}
-
+.btn-primary { background: var(--primary); color: white; }
 .btn-primary:hover { background: var(--primary-hover); }
+
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: var(--success-hover); }
+
+.btn-secondary { background: #e2e8f0; color: var(--text-main); }
+
+.btn-logout { background: #fee2e2; color: var(--danger); font-size: 0.8rem; }
 
 /* Utilidades */
 .hidden { display: none !important; }
+.w-full { width: 100%; }
+.error-msg { color: var(--danger); margin-top: 1rem; text-align: center; }
 
-.error-msg {
-    color: var(--danger);
-    font-size: 0.8rem;
-    margin-top: 1rem;
-    text-align: center;
-}
-
-footer {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-}
+footer { text-align: center; margin-top: 4rem; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; }

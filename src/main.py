@@ -1,57 +1,58 @@
-import http.server
-import socketserver
-import json
-import os
+from flask import Flask, request, jsonify, send_from_directory
 from database.db_manager import DBManager
-from logic.auth import verify_credentials
+# Importamos la lógica pero la usaremos solo si es necesario validar
+from logic.calculator import calculate_age 
 
-PORT = 8080
-UI_DIR = os.path.join(os.path.dirname(__file__), 'ui')
+app = Flask(__name__, static_folder='ui')
+db = DBManager()
 
-class RegistryHandler(http.server.SimpleHTTPRequestHandler):
-    db = DBManager()
+# --- 1. RUTAS DE NAVEGACIÓN ---
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=UI_DIR, **kwargs)
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
 
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data)
+@app.route('/<path:path>')
+def static_files(path):
+    # Esto sirve el CSS y el JS automáticamente desde la carpeta ui/
+    return send_from_directory(app.static_folder, path)
 
-        # RUTA: LOGIN
-        if self.path == '/api/login':
-            role = verify_credentials(data.get('username'), data.get('password'))
-            if role:
-                self._send_json({"status": "success", "role": role, "username": data.get('username')})
-            else:
-                self._send_json({"status": "error", "message": "Credenciales inválidas"}, 401)
+# --- 2. RUTAS DE LA API ---
 
-        # RUTA: REGISTRAR INFANTE (Nueva)
-        elif self.path == '/api/infants':
-            try:
-                conn = self.db.get_connection()
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT INTO infants (father_name, mother_name, infant_name, blood_type_f, 
-                                        blood_type_m, blood_type_i, weight, size, gender, birth_date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (data['father'], data['mother'], data['infant'], data['bt_f'], 
-                      data['bt_m'], data['bt_i'], data['weight'], data['size'], 
-                      data['gender'], data['birth_date']))
-                conn.commit()
-                conn.close()
-                self._send_json({"status": "success", "message": "Infante registrado correctamente"})
-            except Exception as e:
-                self._send_json({"status": "error", "message": str(e)}, 500)
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
 
-    def _send_json(self, data, status=200):
-        self.send_response(status)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+    # Credenciales maestras de GS Digital
+    if username == 'GGJJ' and password == 'Banana123':
+        return jsonify({"success": True, "username": username})
+    
+    return jsonify({"success": False, "message": "Credenciales inválidas"}), 401
 
-if __name__ == "__main__":
-    with socketserver.TCPServer(("", PORT), RegistryHandler) as httpd:
-        print(f"🚀 GS Digital Engine corriendo en puerto {PORT}")
-        httpd.serve_forever()
+@app.route('/add_infant', methods=['POST'])
+def add_infant():
+    try:
+        data = request.json
+        # Opcional: Validamos la edad antes de guardar para asegurar que calculator.py funcione
+        calculate_age(data.get('birth_date'))
+        db.add_infant(data)
+        return jsonify({"success": True, "message": "Registro exitoso"})
+    except Exception as e:
+        print(f"Error en add_infant: {e}")
+        return jsonify({"success": False, "message": "Error al procesar el registro"}), 500
+
+@app.route('/get_infants', methods=['GET'])
+def get_infants():
+    try:
+        # Traemos los datos crudos, el script.js se encarga del segundero
+        infants = db.get_all_infants()
+        return jsonify(infants)
+    except Exception as e:
+        print(f"Error en get_infants: {e}")
+        return jsonify({"error": "No se pudieron cargar los registros"}), 500
+
+if __name__ == '__main__':
+    # host='0.0.0.0' es el puente entre el contenedor y tu Helios 18
+    app.run(host='0.0.0.0', port=8080, debug=True)

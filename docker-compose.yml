@@ -1,10 +1,14 @@
 version: '3.8'
+
 services:
   app:
-    build: .
     container_name: gs_digital_registry
+    build: .
     ports:
       - "8080:8080"
     volumes:
+      # Sincroniza tu carpeta local "data" con la del contenedor
       - ./data:/app/data
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=1

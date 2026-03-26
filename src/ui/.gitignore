@@ -1,21 +1,27 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
+# --- Entornos Virtuales ---
 venv/
+env/
+.env
 
-# Base de Datos (Evitamos subir datos locales al repo)
+# --- Python (Archivos temporales) ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# --- Base de Datos (Seguridad y peso) ---
+# Ignoramos la base de datos real para no subir datos sensibles
 data/*.db
-data/*.db-journal
+data/*.sqlite3
 
-# Docker
+# --- Docker ---
 .dockerignore
 
-# IDEs
-.vscode/
-.idea/
-
-# OS
+# --- Sistema Operativo ---
 .DS_Store
 Thumbs.db
+
+# --- VS Code ---
+.vscode/
+*.code-workspace

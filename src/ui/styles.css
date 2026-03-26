@@ -1,77 +1,112 @@
-/* Variables de Marca GS Digital */
 :root {
     --primary: #2563eb;
     --primary-hover: #1d4ed8;
-    --success: #059669;
-    --success-hover: #047857;
-    --danger: #dc2626;
+    --success: #10b981;
+    --danger: #ef4444;
     --bg: #f1f5f9;
-    --card-bg: #ffffff;
-    --text-main: #1e293b;
+    --card: #ffffff;
+    --text-main: #0f172a;
     --text-muted: #64748b;
     --border: #e2e8f0;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg);
     color: var(--text-main);
-    line-height: 1.6;
+    margin: 0;
+    line-height: 1.5;
 }
 
-/* Header */
-header {
-    background: white;
+/* --- Layout Principal --- */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar {
+    background: var(--card);
     padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--border);
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
-}
-
-.logo { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
-
-/* Contenedores */
-main {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    display: flex;
-    justify-content: center;
-}
-
-.card {
-    background: var(--card-bg);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     width: 100%;
+    box-sizing: border-box;
 }
 
-.form-wide { max-width: 800px; }
+/* --- Cards y Formularios --- */
+.card {
+    background: var(--card);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
 
-/* Dashboard & Tablas */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.form-group { margin-bottom: 1rem; }
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-muted);
+}
+
+input, select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* --- Botones --- */
+.btn {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 1.5rem;
+    justify-content: center;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
 }
 
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-danger { background: var(--danger); color: white; }
+
+/* --- Tabla de Registros --- */
 .table-container {
     overflow-x: auto;
-    background: white;
-    border-radius: 8px;
+    background: var(--card);
+    border-radius: 0.75rem;
     border: 1px solid var(--border);
 }
 
@@ -81,57 +116,27 @@ table {
     text-align: left;
 }
 
-th, td {
+th {
+    background: #f8fafc;
+    padding: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+}
+
+td {
     padding: 1rem;
     border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
 }
 
-th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+tr:hover { background: #fdfdfd; }
 
-/* Form Grid (Para el Registro) */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+/* --- Login (Sobreescritura específica) --- */
+.login-page {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
-.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-
-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-
-input, select {
-    padding: 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-input:focus { outline: 2px solid var(--primary); border-color: transparent; }
-
-/* Botones */
-button {
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    border: none;
-}
-
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-hover); }
-
-.btn-success { background: var(--success); color: white; }
-.btn-success:hover { background: var(--success-hover); }
-
-.btn-secondary { background: #e2e8f0; color: var(--text-main); }
-
-.btn-logout { background: #fee2e2; color: var(--danger); font-size: 0.8rem; }
-
-/* Utilidades */
-.hidden { display: none !important; }
-.w-full { width: 100%; }
-.error-msg { color: var(--danger); margin-top: 1rem; text-align: center; }
-
-footer { text-align: center; margin-top: 4rem; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; }

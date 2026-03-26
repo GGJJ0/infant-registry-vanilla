@@ -1,107 +1,82 @@
-// Estado global de la aplicación
+// --- ESTADO GLOBAL Y PERSISTENCIA ---
 const state = {
-    currentRole: localStorage.getItem('role'),
     username: localStorage.getItem('username'),
     updateInterval: null
 };
 
-// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Si ya hay una sesión guardada, saltamos el login
-    if (state.username && state.currentRole) {
+    // Si ya hay sesión en el navegador, entramos directo
+    if (state.username) {
         showDashboard(state.username);
     }
 });
 
 // --- SISTEMA DE LOGIN ---
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.target.querySelector('button');
-    btn.disabled = true; // Evita doble clic
-    btn.innerText = "Verificando...";
-
-    const payload = {
-        username: document.getElementById('username').value.trim(),
-        password: document.getElementById('password').value
-    };
+async function handleLogin() {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value;
+    const errorDiv = document.getElementById('login-error');
 
     try {
-        const response = await fetch('/api/login', {
+        const response = await fetch('/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ username: user, password: pass })
         });
 
         const data = await response.json();
 
-        if (response.ok && data.status === 'success') {
-            // Guardar en almacenamiento local para persistencia
-            localStorage.setItem('role', data.role);
-            localStorage.setItem('username', data.username);
-            state.currentRole = data.role;
-            state.username = data.username;
-            
-            showDashboard(data.username);
+        if (data.success) {
+            // Guardar sesión
+            localStorage.setItem('username', user);
+            state.username = user;
+            showDashboard(user);
         } else {
-            showError("Usuario o clave incorrectos");
+            showError("Credenciales incorrectas");
         }
     } catch (err) {
         showError("Servidor fuera de línea");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Entrar al Sistema";
     }
-});
+}
 
-// --- MOTOR DEL DASHBOARD ---
-async function showDashboard(username) {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('dashboard-section').classList.remove('hidden');
-    document.getElementById('user-info').classList.remove('hidden');
-    document.getElementById('current-user-display').innerText = `Operador: ${username}`;
-
-    if (state.currentRole === 'admin') {
-        document.getElementById('btn-add-infant').classList.remove('hidden');
-    }
+function showDashboard(username) {
+    document.getElementById('user-display').innerText = `Admin: ${username}`;
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('dashboard-section').style.display = 'flex';
     
-    await loadInfants();
-    startRealTimeClock();
+    loadTable();
+    startRealTimeClock(); // ¡Iniciamos el segundero!
 }
 
 // --- CARGA Y RENDERIZADO ---
-async function loadInfants() {
-    const tbody = document.getElementById('infants-body');
-    tbody.innerHTML = '<tr><td colspan="5">Cargando registros...</td></tr>';
-
+async function loadTable() {
+    const tableBody = document.getElementById('registry-table');
+    
     try {
-        const response = await fetch('/api/infants');
-        if (!response.ok) throw new Error();
-        
+        const response = await fetch('/get_infants');
         const infants = await response.json();
-        tbody.innerHTML = ''; // Limpiar
 
-        if (infants.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5">No hay infantes registrados.</td></tr>';
-            return;
-        }
+        tableBody.innerHTML = ''; 
 
         infants.forEach(inf => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${inf.infant_name}</strong></td>
-                <td>${inf.gender === 'M' ? '♂️ Masc' : '♀️ Fem'}</td>
-                <td class="age-timer" data-birth="${inf.birth_date}">---</td>
-                <td><span class="status-pill ${inf.status.toLowerCase()}">${inf.status}</span></td>
-                <td><button class="btn-sm" onclick="viewDetails(${inf.id})">Detalles</button></td>
+                <td><strong>${inf.infant_name}</strong><br><small>${inf.gender}</small></td>
+                <td class="age-timer" data-birth="${inf.birth_date}">Calculando...</td>
+                <td>P: ${inf.father_name}<br>M: ${inf.mother_name}</td>
+                <td><span class="badge">${inf.blood_type}</span> | ${inf.weight}kg</td>
+                <td>
+                    <button class="btn btn-danger" style="padding: 0.3rem; font-size: 0.7rem;">Eliminar</button>
+                </td>
             `;
-            tbody.appendChild(row);
+            tableBody.appendChild(row);
         });
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" class="error">Error al conectar con la base de datos</td></tr>';
+        console.error("Error al cargar tabla:", err);
     }
 }
 
-// --- CÁLCULO DE TIEMPO REAL ---
+// --- MOTOR DEL RELOJ (Tu especialidad) ---
 function startRealTimeClock() {
     if (state.updateInterval) clearInterval(state.updateInterval);
     
@@ -111,15 +86,16 @@ function startRealTimeClock() {
 
         timers.forEach(td => {
             const birth = new Date(td.getAttribute('data-birth'));
-            const diff = now - birth;
+            if (isNaN(birth)) return;
 
-            if (isNaN(birth)) {
-                td.innerText = "Fecha inválida";
+            const diff = now - birth;
+            const totalSecs = Math.floor(diff / 1000);
+
+            if (totalSecs < 0) {
+                td.innerText = "Recién nacido";
                 return;
             }
 
-            // Cálculos matemáticos puros
-            const totalSecs = Math.floor(diff / 1000);
             const y = Math.floor(totalSecs / 31536000);
             const d = Math.floor((totalSecs % 31536000) / 86400);
             const h = Math.floor((totalSecs % 86400) / 3600);
@@ -131,62 +107,48 @@ function startRealTimeClock() {
     }, 1000);
 }
 
-// --- GUARDADO SEGURO ---
-document.getElementById('infant-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+// --- REGISTRO DE DATOS ---
+async function saveData() {
     const payload = {
         infant: document.getElementById('infant_name').value.trim(),
         gender: document.getElementById('gender').value,
         birth_date: document.getElementById('birth_date').value,
         father: document.getElementById('father_name').value.trim(),
         mother: document.getElementById('mother_name').value.trim(),
+        bt_i: document.getElementById('blood_type').value,
         weight: parseFloat(document.getElementById('weight').value) || 0,
         size: parseFloat(document.getElementById('size').value) || 0
     };
 
-    // Validación básica antes de enviar
     if (!payload.infant || !payload.birth_date) {
-        alert("El nombre y la fecha son obligatorios");
+        alert("Nombre y fecha obligatorios");
         return;
     }
 
     try {
-        const res = await fetch('/api/infants', {
+        const res = await fetch('/add_infant', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
         if (res.ok) {
-            alert("✅ Registro guardado con éxito");
-            e.target.reset();
-            hideRegisterForm();
-            loadInfants();
+            alert("✅ Guardado en GS Digital");
+            location.reload(); // Recarga para limpiar y actualizar todo
         }
     } catch (err) {
-        alert("Error al guardar");
+        alert("Error de conexión");
     }
-});
-
-// --- UTILIDADES ---
-function showError(msg) {
-    const errDiv = document.getElementById('login-error');
-    errDiv.innerText = msg;
-    setTimeout(() => errDiv.innerText = "", 3000);
-}
-
-function showRegisterForm() {
-    document.getElementById('dashboard-section').classList.add('hidden');
-    document.getElementById('register-infant-section').classList.remove('hidden');
-}
-
-function hideRegisterForm() {
-    document.getElementById('register-infant-section').classList.add('hidden');
-    document.getElementById('dashboard-section').classList.remove('hidden');
 }
 
 function logout() {
     localStorage.clear();
     location.reload();
+}
+
+function showError(msg) {
+    const errDiv = document.getElementById('login-error');
+    errDiv.innerText = msg;
+    errDiv.style.display = 'block';
+    setTimeout(() => errDiv.style.display = 'none', 3000);
 }
